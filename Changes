@@ -6,6 +6,17 @@ HISTORY - public release history for MLDBM
 
 =over 8
 
+=item 2.00  (10 May 1998)
+
+Added support for multiple serializing interfaces. (courtesy
+Raphael Manfredi <Raphael_Manfredi@grenoble.hp.com>)
+
+Split serializer wrappers into multiple files, and regularized
+the interface some.  Underlying TIEHASH object and serializer
+can now be set at runtime (with care).
+
+Miscellaneous pod tweaks.
+
 =item 1.25  (7 December 1997)
 
 Add RemoveTaint flag.

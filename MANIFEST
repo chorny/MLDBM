@@ -2,5 +2,10 @@ Changes
 README
 MANIFEST
 Makefile.PL
-MLDBM.pm
-t/mldbm.t
+lib/MLDBM.pm
+lib/MLDBM/Serializer/Data/Dumper.pm
+lib/MLDBM/Serializer/FreezeThaw.pm
+lib/MLDBM/Serializer/Storable.pm
+t/dumper.t
+t/freezethaw.t
+t/storable.t
