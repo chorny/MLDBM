@@ -8,6 +8,9 @@ It requires:
 Please note that this version supercedes the version that
 comes as an example with the Data::Dumper distribution.
 
+If you were able to install Data::Dumper with its XSUB 
+extension, MLDBM will perform significantly faster.
+
 See the embedded documentation in the module for more details.
 
 As always, feedback is very welcome.

@@ -40,5 +40,6 @@ $c = [
        \'c'
      ];
 EOT
+print $first;
 if ($first eq $second) { print "ok 1\n" }
 else { print "not ok 1\n" }

@@ -9,12 +9,14 @@
 # gsar@umich.edu
 #
 
-require 5.001;
+require 5.002;
 package MLDBM;
-$VERSION = $VERSION = '1.20';
+use strict;
 
-require TieHash;
-@ISA = qw(TieHash);
+$MLDBM::VERSION = $MLDBM::VERSION = '1.22';
+
+require Tie::Hash;
+@MLDBM::ISA = qw(Tie::Hash);
 
 use Data::Dumper;
 use Carp;
@@ -24,18 +26,25 @@ use Carp;
 # you might want to change this default to something more efficient
 # like DB_File (you can always override it in the use list)
 #
-$UseDB = "SDBM_File";
+$MLDBM::UseDB = "SDBM_File" unless $MLDBM::UseDB;
+
+#
+# we prefer the faster XS solution if it exists
+# You can override this with the DumpMeth() method
+#
+$MLDBM::DumpMeth = (defined &Data::Dumper::Dumpxs) ? 'Dumpxs' : 'Dump';
+
 
 #
 # the magic string used to recognize MLDBM data
 # this has to be something unique since we try to store
 # stuff natively if it is not a ref
 #
-$Key = '$MlDbM';
+$MLDBM::Key = '$MlDbM' unless $MLDBM::Key;
 
 sub TIEHASH {
   my $c = shift;
-  my $dbpack = $UseDB;
+  my $dbpack = $MLDBM::UseDB;
   $dbpack =~ s|::|/|g;
   $dbpack .= ".pm";
   eval { require $dbpack };       # delay this until they want the tie
@@ -45,24 +54,26 @@ sub TIEHASH {
     return undef;
   }
   my $s = {};
-  $s->{DBname} = $UseDB;
-  $s->{DB} = $UseDB->TIEHASH(@_) 
+  $s->{DBname} = $MLDBM::UseDB;
+  $s->{DB} = $MLDBM::UseDB->TIEHASH(@_) 
     or carp "MLDBM error: Second level tie failed, \"$!\"" and return undef;
+  $s->{dumpmeth} = $MLDBM::DumpMeth;
+  $s->{key} = $MLDBM::Key;
   return bless $s, $c;
 }
 
 sub FETCH {
   my($s, $k) = @_;
-  my $M;
   my $ret = $s->{DB}->FETCH($k);
-  if ($ret =~ s|^\Q$Key||o) {
-    eval $ret; 
+  if ($ret =~ s|^\Q$s->{key}||o) {
+    my $M = "";
+    my $N = eval $ret;
     if ($@) {
       carp "MLDBM error: $@\twhile evaluating:\n $ret";
       $ret = undef;
     }
     else {
-      $ret = $M;
+      $ret = $M ? $M : $N;
     }
   }
   return $ret;
@@ -70,10 +81,12 @@ sub FETCH {
 
 sub STORE {
   my($s, $k, $v) = @_;
-  if (ref($v) or $v =~ m|^\Q$Key|o) {
+  if (ref($v) or $v =~ m|^\Q$s->{key}|o) {
+    my $dumpmeth = $s->{dumpmeth};
     local $Data::Dumper::Indent = 0;
     local $Data::Dumper::Purity = 1;
-    $v = $Key . Data::Dumper->Dump([$v], ['M']);
+    local $Data::Dumper::Terse = 1;
+    $v = $s->{key} . Data::Dumper->$dumpmeth([$v], ['M']);
 #    print $v;
   }
   $s->{DB}->STORE($k, $v);
@@ -85,23 +98,46 @@ sub FIRSTKEY { my $s = shift; $s->{DB}->FIRSTKEY(@_); }
 
 sub NEXTKEY  { my $s = shift; $s->{DB}->NEXTKEY(@_); }
 
+sub EXISTS  { my $s = shift; $s->{DB}->EXISTS(@_); }
+
+sub CLEAR  { my $s = shift; $s->{DB}->CLEAR(@_); }
+
 #
 # delegate messages to the underlying DBM
 #
 sub AUTOLOAD {
-  return if $AUTOLOAD =~ /::DESTROY$/;
+  return if $MLDBM::AUTOLOAD =~ /::DESTROY$/;
   my $s = shift;
   if (ref $s) {                                    # twas a method call
     my $dbname = $s->{DBname};
-    $AUTOLOAD =~ s/^.*::([^:]+)$/$dbname\:\:$1/;   # careful, must permit inheritance
-    $s->{DB}->$AUTOLOAD(@_);
+    $MLDBM::AUTOLOAD =~ s/^.*::([^:]+)$/$dbname\:\:$1/;   # permit inheritance
+    $s->{DB}->$MLDBM::AUTOLOAD(@_);
   }
 }
 
 sub import {
   my ($pack, $dbpack, $key) = @_;
-  $UseDB = $dbpack if defined $dbpack and $dbpack;
-  $Key = $key if defined $key and $key;
+  $MLDBM::UseDB = $dbpack if defined $dbpack and $dbpack;
+  $MLDBM::Key = $key if defined $key and $key;
+}
+
+sub DumpMeth {
+  my ($s, $meth) = @_;
+  (ref $s and defined $meth) ? ($s->{dumpmeth} = $meth) : $s->{dumpmeth};
+}
+
+sub Key {
+  my ($s, $key) = @_;
+  (ref $s) ? ($s->{key} = $key) : $s->{key};
+}
+
+sub UseDB {
+  my ($s, $dbname) = @_;
+  (ref $s) ? ($s->{DBname} = $dbname) : $s->{DBname};
+}
+
+{ # avoid used only once warnings
+  local $Data::Dumper::Terse;
 }
 
 1;
@@ -132,11 +168,11 @@ It requires the Data::Dumper package, available at any CPAN site.
 
 See the B<BUGS> section for important limitations.
 
-=head2 Configuration Variables
+=head2 Configuration Variables or Methods
 
 =over 4
 
-=item $MLDBM::UseDB
+=item $MLDBM::UseDB  I<or>  I<$OBJ>->UseDB(I<[DBNAME]>)
 
 You may want to set $MLDBM::UseDB to default to something other than
 "SDBM_File", in case you have a more efficient DBM, or if you want to use
@@ -144,11 +180,18 @@ this with some other TIEHASH implementation.  Alternatively, you can specify
 the name of the package at C<use> time.  Nested module names can be
 specified as "Foo::Bar".
 
-=item $MLDBM::Key
+=item $MLDBM::Key  I<or>  I<$OBJ>->Key(I<[KEYSTRING]>)
 
 Defaults to the magic string used to recognize MLDBM data. It is a six
 character wide, unique string. This is best left alone, unless you know
 what you're doing.
+
+=item $MLDBM::DumpMeth  I<or>  I<$OBJ>->DumpMeth(I<[METHNAME]>)
+
+This controls which of the two dumping methods available from C<Data::Dumper>
+are used.  By default, this is set to "Dumpxs", the faster of the two 
+methods, but only if MLDBM detects that "Dumpxs" is supported on your 
+platform.  Otherwise, defaults to the slower "Dump" method.
 
 =back
 
@@ -203,7 +246,7 @@ this will NOT work properly:
 Instead, that must be written as:
 
     $tmp = $mldb{key};                # retrieve value
-    $tmp{subkey}[3] = 'stuff';
+    $tmp->{subkey}[3] = 'stuff';
     $mldb{key} = $tmp;                # store value
 
 This limitation exists because the perl TIEHASH interface currently has no
@@ -211,14 +254,10 @@ support for multidimensional ties.
 
 =item 2.
 
-This not as efficient as one would like.
-
-=item 3.
-
-The previous version was released along with the Data::Dumper package as an
-example.  If you got serious with that and have a DBM file from that
-version, you can do something like this to convert the old records to the
-new format:
+MLDBM was first released along with the Data::Dumper package as an 
+example.  If you got serious with that and have a DBM file from that 
+version, you can do something like this to convert the old records 
+to the new format:
 
     use MLDBM (DB_File);              # be sure it's the new MLDBM
     use Fcntl;
@@ -245,10 +284,10 @@ modify it under the same terms as Perl itself.
 
 =head1 VERSION
 
-Version 1.20    16 February 1996
+Version 1.22    26 August 1996
 
 =head1 SEE ALSO
 
-perl(1)
+perl(1), perltie(1), perlfunc(1)
 
 =cut
