@@ -13,7 +13,7 @@ require 5.002;
 package MLDBM;
 use strict;
 
-$MLDBM::VERSION = $MLDBM::VERSION = '1.22';
+$MLDBM::VERSION = $MLDBM::VERSION = '1.23';
 
 require Tie::Hash;
 @MLDBM::ISA = qw(Tie::Hash);
@@ -65,23 +65,19 @@ sub TIEHASH {
 sub FETCH {
   my($s, $k) = @_;
   my $ret = $s->{DB}->FETCH($k);
-  if ($ret =~ s|^\Q$s->{key}||o) {
+  if (defined($ret) and $ret =~ s|^\Q$s->{key}||o) {
     my $M = "";
-    my $N = eval $ret;
-    if ($@) {
-      carp "MLDBM error: $@\twhile evaluating:\n $ret";
-      $ret = undef;
-    }
-    else {
-      $ret = $M ? $M : $N;
-    }
+    # disambiguate hashref (perl may treat it as a block)
+    my $N = eval($ret =~ /^\{/ ? '+'.$ret : $ret);
+    return($M ? $M : $N) unless $@;
+    carp "MLDBM error: $@\twhile evaluating:\n $ret";
   }
-  return $ret;
+  return undef;
 }
 
 sub STORE {
   my($s, $k, $v) = @_;
-  if (ref($v) or $v =~ m|^\Q$s->{key}|o) {
+  if (defined($v) and (ref($v) or $v =~ m|^\Q$s->{key}|o)) {
     my $dumpmeth = $s->{dumpmeth};
     local $Data::Dumper::Indent = 0;
     local $Data::Dumper::Purity = 1;
@@ -221,7 +217,7 @@ platform.  Otherwise, defaults to the slower "Dump" method.
     # to modify data in a substructure
     #
     $tmp = $o{a};
-    $tmp[0] = 'foo';
+    $tmp->[0] = 'foo';
     $o{a} = $tmp;
      
     #
@@ -284,7 +280,7 @@ modify it under the same terms as Perl itself.
 
 =head1 VERSION
 
-Version 1.22    26 August 1996
+Version 1.23    26 August 1996
 
 =head1 SEE ALSO
 
