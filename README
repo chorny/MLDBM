@@ -1,9 +1,10 @@
 This is the README file for MLDBM, the Perl module that can 
-be used to store multidimensional hash structures in DBM files.
+be used to store multidimensional hash structures in tied hashes
+(including DBM files).
 
-It requires:
-   Perl Version 5.003 or later.
-   The Data::Dumper package from CPAN, version 2.07 or later.
+This is version 1.25.  It requires:
+   Perl Version 5.004 or later.
+   The Data::Dumper package from CPAN, version 2.08 or later.
 
 Please note that this version supercedes the version that
 comes as an example with the Data::Dumper distribution.
@@ -18,9 +19,8 @@ As always, feedback is very welcome.
  - Sarathy.
    gsar@umich.edu
 
------------
-
-Installation:
+----------------------------------------------------------------------
+INSTALLATION
 
 You must install the Data::Dumper package first.
 
@@ -30,7 +30,16 @@ From the MLDBM source directory:
    make test
    make install
 
-is all that will be needed.  If you run into problems due to
-old MakeMaker, or if you cannot run MakeMaker because it is
-not supported on your platform, simply copy the MLDBM.pm file
-over into your PERL5LIB directory and you'll be okay.
+is all that will be needed.
+
+----------------------------------------------------------------------
+CHANGES
+
+    1.25  (7 December 1997)
+
+            Add RemoveTaint flag.
+
+            require 5.004.
+
+            require Data::Dumper 2.08.
+

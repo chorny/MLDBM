@@ -9,16 +9,16 @@
 # gsar@umich.edu
 #
 
-require 5.002;
+require 5.004;
 package MLDBM;
 use strict;
 
-$MLDBM::VERSION = $MLDBM::VERSION = '1.24';
+$MLDBM::VERSION = $MLDBM::VERSION = '1.25';
 
 require Tie::Hash;
 @MLDBM::ISA = qw(Tie::Hash);
 
-use Data::Dumper;
+use Data::Dumper '2.08';
 use Carp;
 
 #
@@ -33,6 +33,8 @@ $MLDBM::UseDB = "SDBM_File" unless $MLDBM::UseDB;
 # You can override this with the DumpMeth() method
 #
 $MLDBM::DumpMeth = (defined &Data::Dumper::Dumpxs) ? 'Dumpxs' : 'Dump';
+
+$MLDBM::RemoveTaint = 0;
 
 
 #
@@ -55,6 +57,7 @@ sub TIEHASH {
   }
   my $s = {};
   $s->{DBname} = $MLDBM::UseDB;
+  $s->{removetaint} = $MLDBM::RemoveTaint;
   $s->{DB} = $MLDBM::UseDB->TIEHASH(@_) 
     or carp "MLDBM error: Second level tie failed, \"$!\"" and return undef;
   $s->{dumpmeth} = $MLDBM::DumpMeth;
@@ -67,6 +70,7 @@ sub FETCH {
   my $ret = $s->{DB}->FETCH($k);
   if (defined($ret) and $ret =~ s|^\Q$s->{key}||o) {
     my $M = "";
+    ($ret) = $ret =~ /^(.*)$/s if $s->{removetaint};
     # disambiguate hashref (perl may treat it as a block)
     my $N = eval($ret =~ /^\{/ ? '+'.$ret : $ret);
     return($M ? $M : $N) unless $@;
@@ -112,9 +116,10 @@ sub AUTOLOAD {
 }
 
 sub import {
-  my ($pack, $dbpack, $key) = @_;
+  my ($pack, $dbpack, $key, $removetaint) = @_;
   $MLDBM::UseDB = $dbpack if defined $dbpack and $dbpack;
   $MLDBM::Key = $key if defined $key and $key;
+  $MLDBM::RemoveTaint = $removetaint if defined $removetaint and $removetaint;
 }
 
 sub DumpMeth {
@@ -124,12 +129,17 @@ sub DumpMeth {
 
 sub Key {
   my ($s, $key) = @_;
-  (ref $s) ? ($s->{key} = $key) : $s->{key};
+  (ref $s) ? (($s->{key} = $key), return $s) : $s->{key};
 }
 
 sub UseDB {
   my ($s, $dbname) = @_;
-  (ref $s) ? ($s->{DBname} = $dbname) : $s->{DBname};
+  (ref $s) ? (($s->{DBname} = $dbname), return $s) : $s->{DBname};
+}
+
+sub RemoveTaint {
+  my ($s, $removetaint) = @_;
+  (ref $s) ? (($s->{removetaint} = $removetaint), return $s) : $s->{removetaint};
 }
 
 { # avoid used only once warnings
@@ -188,6 +198,12 @@ This controls which of the two dumping methods available from C<Data::Dumper>
 are used.  By default, this is set to "Dumpxs", the faster of the two 
 methods, but only if MLDBM detects that "Dumpxs" is supported on your 
 platform.  Otherwise, defaults to the slower "Dump" method.
+
+=item $MLDBM::RemoveTaint  I<or>  I<$OBJ>->RemoveTaint(I<[BOOL]>)
+
+This can be set to a true value to make MLDBM untaint the data retrieved
+from the underlying DBM implementation.  It is not enabled by default.
+Use with care.
 
 =back
 
@@ -250,37 +266,32 @@ support for multidimensional ties.
 
 =item 2.
 
-MLDBM was first released along with the Data::Dumper package as an 
-example.  If you got serious with that and have a DBM file from that 
-version, you can do something like this to convert the old records 
-to the new format:
-
-    use MLDBM (DB_File);              # be sure it's the new MLDBM
-    use Fcntl;
-    tie %o, MLDBM, 'oldmldbm.file', O_RDWR, 0640 or die $!;
-    for $k (keys %o) {
-      my $v = $o{$k};
-      if ($v =~ /^\$CrYpTiCkEy/o) {
-	$v = eval $v;
-	if ($@) { warn "Error: $@\twhile evaluating $v\n"; }
-	else    { $o{$k} = $v; }
-      }
-    }
-    
+Uses eval().  A lot.
 
 =back
+
+=head1 WARNINGS
+
+Many DBM implementations have arbitrary limits on the size of records
+that can be stored.  For example, SDBM and many ODBM or NDBM
+implementations have a default limit of 1024 bytes for the size of a
+record.  MLDBM can easily exceed these limits when storing large data
+structures, leading to mysterious failures.  Although SDBM_File is
+used by MLDBM by default, it is not a good choice if you're storing
+large data structures.  Berkeley DB and GDBM both do not have these
+limits, so I recommend using either of those instead.
 
 =head1 AUTHOR
 
 Gurusamy Sarathy        gsar@umich.edu
 
-Copyright (c) 1995 Gurusamy Sarathy. All rights reserved.
+Copyright (c) 1995-97 Gurusamy Sarathy. All rights reserved.
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 VERSION
 
-Version 1.24    29 October 1997
+Version 1.25    7 December 1997
 
 =head1 SEE ALSO
 

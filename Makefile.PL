@@ -3,7 +3,6 @@ WriteMakefile(
               NAME => "MLDBM",
               DISTNAME => "MLDBM",
               VERSION_FROM => 'MLDBM.pm',
-              SKIP => [qw(static dynamic)],
-              'linkext' => {LINKTYPE => '' },
+	      PREREQ_PM => { Data::Dumper => '2.08' },
               'dist' => {COMPRESS=>'gzip -9f', SUFFIX => 'gz'}
              );

@@ -15,7 +15,7 @@ $b->{c} = $a->[2];
 $o{d} = "{once upon a time}";
 $o{e} = 1024;
 $o{f} = 1024.1024;
-$first = Data::Dumper->Dump([@o{qw(a b c)}], [qw(a b c)]);
+$first = Data::Dumper->new([@o{qw(a b c)}], [qw(a b c)])->Quotekeys(0)->Dump;
 $second = <<'EOT';
 $a = [
        1,

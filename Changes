@@ -1,0 +1,41 @@
+=head1 NAME
+
+HISTORY - public release history for MLDBM
+
+=head1 DESCRIPTION
+
+=over 8
+
+=item 1.25  (7 December 1997)
+
+Add RemoveTaint flag.
+
+require 5.004.
+
+require Data::Dumper 2.08.
+
+=item 1.24  (29 October 1997)
+
+Version 1.23 was seriously busted, and had \r's. :-(
+
+=item 1.23  (26 July 1997)
+
+Fixes to avoid 'undefined value' messages.
+
+=item 1.22  (26 August 1996)
+
+Add EXISTS and CLEAR methods.
+
+Add a flag to control which underlying DBM is used.
+
+=item 1.21  (9 April 1996)
+
+Add flag to control which D::D method is used.
+
+=item 1.20  (16 February 1996)
+
+Earliest stable version I can remember.
+
+=back
+
+=cut
