@@ -11,12 +11,10 @@
 
 require 5.002;
 package MLDBM;
-use strict;
-
-$MLDBM::VERSION = $MLDBM::VERSION = '1.23';
+$VERSION = $VERSION = '1.21';
 
 require Tie::Hash;
-@MLDBM::ISA = qw(Tie::Hash);
+@ISA = qw(Tie::Hash);
 
 use Data::Dumper;
 use Carp;
@@ -26,13 +24,13 @@ use Carp;
 # you might want to change this default to something more efficient
 # like DB_File (you can always override it in the use list)
 #
-$MLDBM::UseDB = "SDBM_File" unless $MLDBM::UseDB;
+$UseDB = "SDBM_File";
 
 #
 # we prefer the faster XS solution if it exists
 # You can override this with the DumpMeth() method
 #
-$MLDBM::DumpMeth = (defined &Data::Dumper::Dumpxs) ? 'Dumpxs' : 'Dump';
+$DumpMeth = (defined &Data::Dumper::Dumpxs) ? 'Dumpxs' : 'Dump';
 
 
 #
@@ -40,11 +38,11 @@ $MLDBM::DumpMeth = (defined &Data::Dumper::Dumpxs) ? 'Dumpxs' : 'Dump';
 # this has to be something unique since we try to store
 # stuff natively if it is not a ref
 #
-$MLDBM::Key = '$MlDbM' unless $MLDBM::Key;
+$Key = '$MlDbM';
 
 sub TIEHASH {
   my $c = shift;
-  my $dbpack = $MLDBM::UseDB;
+  my $dbpack = $UseDB;
   $dbpack =~ s|::|/|g;
   $dbpack .= ".pm";
   eval { require $dbpack };       # delay this until they want the tie
@@ -54,35 +52,37 @@ sub TIEHASH {
     return undef;
   }
   my $s = {};
-  $s->{DBname} = $MLDBM::UseDB;
-  $s->{DB} = $MLDBM::UseDB->TIEHASH(@_) 
+  $s->{DBname} = $UseDB;
+  $s->{DB} = $UseDB->TIEHASH(@_) 
     or carp "MLDBM error: Second level tie failed, \"$!\"" and return undef;
-  $s->{dumpmeth} = $MLDBM::DumpMeth;
-  $s->{key} = $MLDBM::Key;
+  $s->{dumpmeth} = $DumpMeth;
   return bless $s, $c;
 }
 
 sub FETCH {
   my($s, $k) = @_;
+  my $M;
   my $ret = $s->{DB}->FETCH($k);
-  if (defined($ret) and $ret =~ s|^\Q$s->{key}||o) {
-    my $M = "";
-    # disambiguate hashref (perl may treat it as a block)
-    my $N = eval($ret =~ /^\{/ ? '+'.$ret : $ret);
-    return($M ? $M : $N) unless $@;
-    carp "MLDBM error: $@\twhile evaluating:\n $ret";
+  if ($ret =~ s|^\Q$Key||o) {
+    eval $ret; 
+    if ($@) {
+      carp "MLDBM error: $@\twhile evaluating:\n $ret";
+      $ret = undef;
+    }
+    else {
+      $ret = $M;
+    }
   }
-  return undef;
+  return $ret;
 }
 
 sub STORE {
   my($s, $k, $v) = @_;
-  if (defined($v) and (ref($v) or $v =~ m|^\Q$s->{key}|o)) {
+  if (ref($v) or $v =~ m|^\Q$Key|o) {
     my $dumpmeth = $s->{dumpmeth};
     local $Data::Dumper::Indent = 0;
     local $Data::Dumper::Purity = 1;
-    local $Data::Dumper::Terse = 1;
-    $v = $s->{key} . Data::Dumper->$dumpmeth([$v], ['M']);
+    $v = $Key . Data::Dumper->$dumpmeth([$v], ['M']);
 #    print $v;
   }
   $s->{DB}->STORE($k, $v);
@@ -94,46 +94,28 @@ sub FIRSTKEY { my $s = shift; $s->{DB}->FIRSTKEY(@_); }
 
 sub NEXTKEY  { my $s = shift; $s->{DB}->NEXTKEY(@_); }
 
-sub EXISTS  { my $s = shift; $s->{DB}->EXISTS(@_); }
-
-sub CLEAR  { my $s = shift; $s->{DB}->CLEAR(@_); }
-
 #
 # delegate messages to the underlying DBM
 #
 sub AUTOLOAD {
-  return if $MLDBM::AUTOLOAD =~ /::DESTROY$/;
+  return if $AUTOLOAD =~ /::DESTROY$/;
   my $s = shift;
   if (ref $s) {                                    # twas a method call
     my $dbname = $s->{DBname};
-    $MLDBM::AUTOLOAD =~ s/^.*::([^:]+)$/$dbname\:\:$1/;   # permit inheritance
-    $s->{DB}->$MLDBM::AUTOLOAD(@_);
+    $AUTOLOAD =~ s/^.*::([^:]+)$/$dbname\:\:$1/;   # careful, must permit inheritance
+    $s->{DB}->$AUTOLOAD(@_);
   }
 }
 
 sub import {
   my ($pack, $dbpack, $key) = @_;
-  $MLDBM::UseDB = $dbpack if defined $dbpack and $dbpack;
-  $MLDBM::Key = $key if defined $key and $key;
+  $UseDB = $dbpack if defined $dbpack and $dbpack;
+  $Key = $key if defined $key and $key;
 }
 
 sub DumpMeth {
   my ($s, $meth) = @_;
   (ref $s and defined $meth) ? ($s->{dumpmeth} = $meth) : $s->{dumpmeth};
-}
-
-sub Key {
-  my ($s, $key) = @_;
-  (ref $s) ? ($s->{key} = $key) : $s->{key};
-}
-
-sub UseDB {
-  my ($s, $dbname) = @_;
-  (ref $s) ? ($s->{DBname} = $dbname) : $s->{DBname};
-}
-
-{ # avoid used only once warnings
-  local $Data::Dumper::Terse;
 }
 
 1;
@@ -164,11 +146,11 @@ It requires the Data::Dumper package, available at any CPAN site.
 
 See the B<BUGS> section for important limitations.
 
-=head2 Configuration Variables or Methods
+=head2 Configuration Variables/Methods
 
 =over 4
 
-=item $MLDBM::UseDB  I<or>  I<$OBJ>->UseDB(I<[DBNAME]>)
+=item $MLDBM::UseDB
 
 You may want to set $MLDBM::UseDB to default to something other than
 "SDBM_File", in case you have a more efficient DBM, or if you want to use
@@ -176,13 +158,13 @@ this with some other TIEHASH implementation.  Alternatively, you can specify
 the name of the package at C<use> time.  Nested module names can be
 specified as "Foo::Bar".
 
-=item $MLDBM::Key  I<or>  I<$OBJ>->Key(I<[KEYSTRING]>)
+=item $MLDBM::Key
 
 Defaults to the magic string used to recognize MLDBM data. It is a six
 character wide, unique string. This is best left alone, unless you know
 what you're doing.
 
-=item $MLDBM::DumpMeth  I<or>  I<$OBJ>->DumpMeth(I<[METHNAME]>)
+=item $MLDBM::DumpMeth  I<or>  $I<OBJ>->DumpMeth(I<[METHNAME]>)
 
 This controls which of the two dumping methods available from C<Data::Dumper>
 are used.  By default, this is set to "Dumpxs", the faster of the two 
@@ -217,7 +199,7 @@ platform.  Otherwise, defaults to the slower "Dump" method.
     # to modify data in a substructure
     #
     $tmp = $o{a};
-    $tmp->[0] = 'foo';
+    $tmp[0] = 'foo';
     $o{a} = $tmp;
      
     #
@@ -280,10 +262,10 @@ modify it under the same terms as Perl itself.
 
 =head1 VERSION
 
-Version 1.23    26 August 1996
+Version 1.21    9 April 1996
 
 =head1 SEE ALSO
 
-perl(1), perltie(1), perlfunc(1)
+perl(1)
 
 =cut
