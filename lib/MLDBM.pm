@@ -80,7 +80,7 @@ sub _attrib {
 ####################################################################
 package MLDBM;
 
-$MLDBM::VERSION = $MLDBM::VERSION = '2.00';
+$MLDBM::VERSION = $MLDBM::VERSION = '2.01';
 
 require Tie::Hash;
 @MLDBM::ISA = 'Tie::Hash';
@@ -213,6 +213,51 @@ sub import {
     $MLDBM::Key = $key if defined $key and $key;
 }
 
+# helper subroutine for tests to compare to arbitrary data structures
+# for equivalency
+sub _compare {
+    use vars qw(%compared);
+    local %compared;
+    return _cmp(@_);
+}
+
+sub _cmp {
+    my($a, $b) = @_;
+
+    # catch circular loops
+    return(1) if $compared{$a.'&*&*&*&*&*'.$b}++;
+#    print "$a $b\n";
+#    print &Data::Dumper::Dumper($a, $b);
+
+    if(ref($a) and ref($a) eq ref($b)) {
+	if(eval { @$a }) {
+#	    print "HERE ".@$a." ".@$b."\n";
+	    @$a == @$b or return 0;
+#	    print @$a, ' ', @$b, "\n";
+#	    print "HERE2\n";
+
+	    for(0..@$a-1) {
+		&_cmp($a->[$_], $b->[$_]) or return 0;
+	    }
+	} elsif(eval { %$a }) {
+	    keys %$a == keys %$b or return 0;
+	    for (keys %$a) {
+		&_cmp($a->{$_}, $b->{$_}) or return 0;
+	    }
+	} elsif(eval { $$a }) {
+	    &_cmp($$a, $$b) or return 0;
+	} else {
+	    die("data $a $b not handled");
+	}
+	return 1;
+    } elsif(! ref($a) and ! ref($b)) {
+	return ($a eq $b);
+    } else {
+	return 0;
+    }
+
+}
+
 1;
 
 __END__
@@ -255,7 +300,7 @@ See the L<BUGS> section for important limitations.
 
 B<MLDBM> relies on an underlying TIEHASH implementation (usually a
 DBM package), and an underlying serialization package.  The respective
-defaults are B<SDBM_File> and D<Data::Dumper>.  Both of these defaults
+defaults are B<SDBM_File> and B<Data::Dumper>.  Both of these defaults
 can be changed.  Changing the B<SDBM_File> default is strongly recommended.
 See L<WARNINGS> below.
 
@@ -485,16 +530,20 @@ Gurusamy Sarathy <F<gsar@umich.edu>>.
 Support for multiple serializing packages by
 Raphael Manfredi <F<Raphael_Manfredi@grenoble.hp.com>>.
 
+Test suite fixes for perl 5.8.0 done by Josh Chamas.
+
 Copyright (c) 1995-98 Gurusamy Sarathy.  All rights reserved.
 
 Copyright (c) 1998 Raphael Manfredi.
+
+Copyright (c) 2002 Josh Chamas, Chamas Enterprises Inc.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =head1 VERSION
 
-Version 2.00	10 May 1998
+Version 2.01	07 July 2002
 
 =head1 SEE ALSO
 

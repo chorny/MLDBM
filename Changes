@@ -6,6 +6,15 @@ HISTORY - public release history for MLDBM
 
 =over 8
 
+=item 2.01  (07 July 2002)
+
+New testing method MLDBM::_compare($a, $b) used in t/*.t
+scripts to verify data structures are identical.  In 
+perl 5.8.0 RC2, the order of hashes changed, making the prior
+hard coded test case string comparisons invalid, so created
+this more flexible method for testing that should work in 
+future releases, without relying on specific hash ordering.
+
 =item 2.00  (10 May 1998)
 
 Added support for multiple serializing interfaces. (courtesy

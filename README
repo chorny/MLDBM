@@ -40,6 +40,11 @@ is all that will be needed.
 ----------------------------------------------------------------------
 CHANGES
 
+    2.01  (07 July 2002)
+	    Fixed t/*.t tests to work under perl 5.8.0 RC2
+	    The core of MLDBM was working, the tests were fixed.
+	    (courtesy of Josh Chamas)
+
     2.00  (10 May 1998)
             Added support for multiple serializing interfaces.
             (courtesy Raphael Manfredi
