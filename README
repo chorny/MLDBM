@@ -2,15 +2,14 @@ This is the README file for MLDBM, the Perl module that can
 be used to store multidimensional hash structures in DBM files.
 
 It requires:
-   Perl Version 5.001m or later.
-   The Data::Dumper package from CPAN, version 1.23 or later.
+   Perl Version 5.003 or later.
+   The Data::Dumper package from CPAN, version 2.07 or later.
 
 Please note that this version supercedes the version that
 comes as an example with the Data::Dumper distribution.
 
-If you have Data::Dumper version 2.01 or later, and if you
-installed its XSUB extension, MLDBM will perform significantly
-faster.
+If you were able to install Data::Dumper with its XSUB 
+extension, MLDBM will perform significantly faster.
 
 See the embedded documentation in the module for more details.
 
