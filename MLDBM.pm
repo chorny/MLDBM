@@ -11,7 +11,7 @@
 
 require 5.001;
 package MLDBM;
-$VERSION = $VERSION = '1.10';
+$VERSION = $VERSION = '1.20';
 
 require TieHash;
 @ISA = qw(TieHash);
@@ -41,10 +41,14 @@ sub TIEHASH {
   eval { require $dbpack };       # delay this until they want the tie
   if ($@) {
     carp "MLDBM error: Please make sure $dbpack is a properly installed TIEHASH package.\n" .
-      "\tPerl says: $@";
+      "\tPerl says: \"$@\"";
     return undef;
   }
-  return bless { DBname => $UseDB, DB => $UseDB->TIEHASH(@_) }, $c;
+  my $s = {};
+  $s->{DBname} = $UseDB;
+  $s->{DB} = $UseDB->TIEHASH(@_) 
+    or carp "MLDBM error: Second level tie failed, \"$!\"" and return undef;
+  return bless $s, $c;
 }
 
 sub FETCH {
@@ -241,7 +245,7 @@ modify it under the same terms as Perl itself.
 
 =head1 VERSION
 
-Version 1.10    19 January 1996
+Version 1.20    16 February 1996
 
 =head1 SEE ALSO
 
