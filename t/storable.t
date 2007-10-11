@@ -1,16 +1,16 @@
 #!/usr/bin/perl -w
+
 use Fcntl;
 use MLDBM qw(SDBM_File Storable);
 use Data::Dumper;
 use strict;
+use Test::More tests => 9;
 
-eval { require Storable };
-if ($@) {
-	print "1..0\n";
-	exit 0;
-}
+plan skip_all => "Optional module (Storable) not installed"
+  unless eval {
+               require Storable;
+              };
 tie my %o, 'MLDBM', 'testmldbm', O_CREAT|O_RDWR, 0640 or die $!;
-print "1..8\n";
 
 my $c_scalar = 'c';
 my $c = [\$c_scalar];
@@ -25,12 +25,14 @@ $o{e} = 1024;
 $o{f} = 1024.1024;
 
 my $compare_ok = &MLDBM::_compare([ @o{qw(a b c)} ], [ $a, $b, $c ]);
-if ($compare_ok) { print "ok 1\n" }
-else { print "not ok 1\n" }
+ok($compare_ok);
 
-print ($o{d} eq "{once upon a time}" ? "ok 2\n" : "# |$o{d}|\nnot ok 2\n");
-print ($o{e} == 1024 ? "ok 3\n" : "# |$o{e}|\nnot ok 3\n");
-print ($o{f} eq 1024.1024 ? "ok 4\n" : "# |$o{f}|\nnot ok 4\n");
+is($o{d},"{once upon a time}");
+is($o{e},1024);
+is($o{f},1024.1024);
+#print ( ? "ok 2\n" : "# |$o{d}|\nnot ok 2\n");
+#print ($o{e} == 1024 ? "ok 3\n" : "# |$o{e}|\nnot ok 3\n");
+#print ($o{f} eq 1024.1024 ? "ok 4\n" : "# |$o{f}|\nnot ok 4\n");
 
 # NEW TEST SEQUENCE
 untie %o;
@@ -49,10 +51,16 @@ $o{e} = 1024;
 $o{f} = 1024.1024;
 
 $compare_ok = &MLDBM::_compare([ @o{qw(a b c)} ], [ $a, $b, $c]);
-if ($compare_ok) { print "ok 5\n" }
-else { print "not ok 5\n" }
+ok($compare_ok);
 
-print ($o{d} eq "{once upon a time}" ? "ok 6\n" : "# |$o{d}|\nnot ok 6\n");
-print ($o{e} == 1024 ? "ok 7\n" : "# |$o{e}|\nnot ok 7\n");
-print ($o{f} eq 1024.1024 ? "ok 8\n" : "# |$o{f}|\nnot ok 8\n");
+is($o{d},"{once upon a time}");
+is($o{e},1024);
+is($o{f},1024.1024);
+#print ($o{d} eq "{once upon a time}" ? "ok 6\n" : "# |$o{d}|\nnot ok 6\n");
+#print ($o{e} == 1024 ? "ok 7\n" : "# |$o{e}|\nnot ok 7\n");
+#print ($o{f} eq 1024.1024 ? "ok 8\n" : "# |$o{f}|\nnot ok 8\n");
 
+my $d=[17];
+$o{g}=$d;
+$d='';
+is($o{g}->[0],17);
