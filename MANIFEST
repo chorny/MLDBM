@@ -10,3 +10,4 @@ t/compare.t
 t/dumper.t
 t/freezethaw.t
 t/storable.t
+t/storable_dbfile.t
