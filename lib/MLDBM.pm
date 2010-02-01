@@ -128,7 +128,7 @@ sub TIEHASH {
     unless (ref $szr) {
 	$szr = "MLDBM::Serializer::$szr"	# allow convenient short names
 	  unless $szr =~ /^MLDBM::Serializer::/;
-	&$loadpack($szr) or return undef;
+	$loadpack->($szr) or return undef;
 	$szr = $szr->new($MLDBM::DumpMeth,
 			 $MLDBM::RemoveTaint,
 			 $MLDBM::Key);
@@ -139,7 +139,7 @@ sub TIEHASH {
     # Create the right TIEHASH  object.
     my $db = $MLDBM::UseDB;
     unless (ref $db) {
-	&$loadpack($db) or return undef;
+	$loadpack->($db) or return undef;
 	$db = $db->TIEHASH(@_)
 	  or carp "MLDBM error: Second level tie failed, \"$!\""
 	    and return undef;
