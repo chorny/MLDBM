@@ -547,6 +547,6 @@ Version 2.01	07 July 2002
 
 =head1 SEE ALSO
 
-perl(1), perltie(1), perlfunc(1), Data::Dumper(3), FreezeThaw(3), Storable(3).
+perl(1), perltie(1), perlfunc(1), Data::Dumper(3), FreezeThaw(3), Storable(3), DBM::Deep.
 
 =cut
