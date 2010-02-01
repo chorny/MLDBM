@@ -6,7 +6,6 @@ WriteMakefile1(
   VERSION_FROM => 'lib/MLDBM.pm',
   PREREQ_PM => {
     'Data::Dumper' => '2.08',
-    'Test::More' => 0,
   },
   'dist' => {COMPRESS=>'gzip -9f', SUFFIX => 'gz'},
   'LICENSE' => 'perl',
@@ -16,8 +15,9 @@ WriteMakefile1(
       repository => 'git://github.com/chorny/MLDBM.git',
     },
   },
-  #BUILD_REQUIRES => {
-  #},
+  BUILD_REQUIRES => {
+    'Test::More' => 0,
+  },
 );
 
 sub WriteMakefile1 {  #Written by Alexandr Ciornii, version 0.21. Added by eumm-upgrade.
