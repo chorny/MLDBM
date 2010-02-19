@@ -6,6 +6,12 @@ HISTORY - public release history for MLDBM
 
 =over 8
 
+=item 2.02  (19 Feb 2010, by Alexandr Ciornii) 
+
+New tests added.
+
+Distribution upgraded
+
 =item 2.01  (07 July 2002)
 
 New testing method MLDBM::_compare($a, $b) used in t/*.t

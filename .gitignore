@@ -15,3 +15,6 @@ MYMETA.yml
 
 MLDBM-*
 testmldbm.*
+testmldbm
+mldbm.dir
+mldbm.pag
