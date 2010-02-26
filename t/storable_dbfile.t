@@ -4,13 +4,15 @@ use Fcntl;
 use MLDBM qw(DB_File Storable);
 use Data::Dumper;
 use strict;
-use Test::More tests => 9;
+use Test::More;
 
 plan skip_all => "Optional module (DB_File,Storable) not installed"
   unless eval {
                require Storable;
                require DB_File;
               };
+plan tests => 9;
+
 tie my %o, 'MLDBM', 'testmldbm', O_CREAT|O_RDWR, 0640 or die $!;
 
 my $c_scalar = 'c';
