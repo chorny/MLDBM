@@ -80,7 +80,7 @@ sub _attrib {
 ####################################################################
 package MLDBM;
 
-$MLDBM::VERSION = $MLDBM::VERSION = '2.02';
+$MLDBM::VERSION = $MLDBM::VERSION = '2.03';
 
 require Tie::Hash;
 @MLDBM::ISA = 'Tie::Hash';
