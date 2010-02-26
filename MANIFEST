@@ -2,6 +2,7 @@ Changes
 README
 MANIFEST
 Makefile.PL
+Build.PL
 lib/MLDBM.pm
 lib/MLDBM/Serializer/Data/Dumper.pm
 lib/MLDBM/Serializer/FreezeThaw.pm
