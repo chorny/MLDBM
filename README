@@ -2,7 +2,7 @@ This is the README file for MLDBM, the Perl module that can
 be used to store multidimensional hash structures in tied hashes
 (including DBM files).
 
-This is version 2.03. It requires Perl Version 5.4 or later.
+This is version 2.04. It requires Perl Version 5.4 or later.
 
 If you were able to install Data::Dumper with its XSUB extension, MLDBM
 will perform significantly faster.
@@ -37,6 +37,9 @@ is all that will be needed.
 
 ----------------------------------------------------------------------
 CHANGES
+
+    2.04  (08 Mar 2010, by Alexandr Ciornii) 
+            Compatibility with old EU::MM.
 
     2.03  (27 Feb 2010, by Alexandr Ciornii) 
             Test fixed.

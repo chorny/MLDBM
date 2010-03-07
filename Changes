@@ -6,6 +6,10 @@ HISTORY - public release history for MLDBM
 
 =over 8
 
+=item 2.04  (08 Mar 2010, by Alexandr Ciornii) 
+
+Compatibility with old EU::MM.
+
 =item 2.03  (27 Feb 2010, by Alexandr Ciornii) 
 
 Error in test fixed.
