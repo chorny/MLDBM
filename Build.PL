@@ -17,7 +17,11 @@ my $build = Module::Build->new(
     }
   },
   'license' => 'perl',
-  'dist_version_from' => 'lib/MLDBM.pm'
+  'dist_version_from' => 'lib/MLDBM.pm',
+  'dist_author' => [
+    'Gurusamy Sarathy <gsar@umich.edu>',
+    'Alexandr Ciornii (alexchorny@gmail.com)',
+  ],
 );
 
 $build->create_build_script();
