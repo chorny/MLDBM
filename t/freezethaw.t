@@ -6,7 +6,7 @@ use strict;
 
 eval { require FreezeThaw };
 if ($@) {
-	print "1..0\n";
+	print "1..0 # SKIP Optional module (FreezeThaw) not installed\n";
 	exit 0;
 }
 tie my %o, 'MLDBM', 'testmldbm', O_CREAT|O_RDWR, 0640 or die $!;
