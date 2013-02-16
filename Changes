@@ -6,6 +6,12 @@ HISTORY - public release history for MLDBM
 
 =over 8
 
+=item 2.05
+
+Require perl 5.5
+
+Test for pod
+
 =item 2.04  (08 Mar 2010, by Alexandr Ciornii) 
 
 Compatibility with old EU::MM.

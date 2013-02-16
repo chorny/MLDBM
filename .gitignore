@@ -12,6 +12,7 @@ pod2htm*.tmp
 Makefile.PL
 META.yml
 MYMETA.yml
+MYMETA.json
 
 MLDBM-*
 testmldbm.*
