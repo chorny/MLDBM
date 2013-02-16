@@ -10,6 +10,7 @@ my $build = Module::Build->new(
   'requires' => {
     'perl' => '5.005',
     'Data::Dumper' => '2.08'
+    'Carp' => 0,
   },
   'meta_merge' => {
     'resources' => {

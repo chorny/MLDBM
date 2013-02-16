@@ -6,6 +6,7 @@ WriteMakefile1(
   VERSION_FROM => 'lib/MLDBM.pm',
   PREREQ_PM => {
     'Data::Dumper' => '2.08',
+    'Carp' => 0,
   },
   BUILD_REQUIRES => {
     'Test::More' => 0,
