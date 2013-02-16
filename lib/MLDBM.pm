@@ -15,6 +15,7 @@ use strict;
 ####################################################################
 package MLDBM::Serializer;	## deferred
 
+$MLDBM::Serializer::VERSION = $MLDBM::Serializer::VERSION = '2.04';
 use Carp;
 
 #
