@@ -9,7 +9,7 @@ my $build = Module::Build->new(
   'module_name' => 'MLDBM',
   'requires' => {
     'perl' => '5.005',
-    'Data::Dumper' => '2.08'
+    'Data::Dumper' => '2.08',
     'Carp' => 0,
   },
   'meta_merge' => {
