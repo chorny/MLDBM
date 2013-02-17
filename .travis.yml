@@ -2,4 +2,4 @@ language: perl
 perl:
   - "5.16"
 before_script:
-  - cpanm FreezeThaw
+  - cpanm FreezeThaw DB_File
