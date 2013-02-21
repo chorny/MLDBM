@@ -23,6 +23,7 @@ my $build = Module::Build->new(
     'Gurusamy Sarathy <gsar@umich.edu>',
     'Alexandr Ciornii (alexchorny@gmail.com)',
   ],
+  'auto_configure_requires' => 0,
 );
 
 $build->create_build_script();

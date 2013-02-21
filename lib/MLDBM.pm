@@ -15,7 +15,7 @@ use strict;
 ####################################################################
 package MLDBM::Serializer;	## deferred
 
-$MLDBM::Serializer::VERSION = $MLDBM::Serializer::VERSION = '2.04';
+$MLDBM::Serializer::VERSION = $MLDBM::Serializer::VERSION = '2.05';
 use Carp;
 
 #
@@ -81,7 +81,7 @@ sub _attrib {
 ####################################################################
 package MLDBM;
 
-$MLDBM::VERSION = $MLDBM::VERSION = '2.04';
+$MLDBM::VERSION = $MLDBM::VERSION = '2.05';
 
 require Tie::Hash;
 @MLDBM::ISA = 'Tie::Hash';
@@ -546,7 +546,7 @@ modify it under the same terms as Perl itself.
 
 =head1 VERSION
 
-Version 2.04	08 Mar 2010
+Version 2.05
 
 =head1 SEE ALSO
 

@@ -13,3 +13,4 @@ t/freezethaw.t
 t/storable.t
 t/storable_dbfile.t
 META.yml
+META.json
