@@ -550,6 +550,6 @@ Version 2.04	08 Mar 2010
 
 =head1 SEE ALSO
 
-perl(1), perltie(1), perlfunc(1), L<Data::Dumper>, L<FreezeThaw>, L<Storable>, L<DBM::Deep>.
+perl(1), perltie(1), perlfunc(1), L<Data::Dumper>, L<FreezeThaw>, L<Storable>, L<DBM::Deep>, L<MLDBM::Serializer::JSON>.
 
 =cut
