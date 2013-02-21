@@ -16,7 +16,7 @@ WriteMakefile1(
   MIN_PERL_VERSION => '5.005',
   META_MERGE => {
     resources => {
-      repository => 'git://github.com/chorny/MLDBM.git',
+      repository => 'http://github.com/chorny/MLDBM/',
     },
   },
   'PL_FILES' => {},

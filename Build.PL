@@ -14,7 +14,7 @@ my $build = Module::Build->new(
   },
   'meta_merge' => {
     'resources' => {
-      'repository' => 'git://github.com/chorny/MLDBM.git'
+      'repository' => 'http://github.com/chorny/MLDBM/'
     }
   },
   'license' => 'perl',
