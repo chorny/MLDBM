@@ -2,4 +2,5 @@ language: perl
 perl:
   - "5.16"
 before_script:
+  - "sudo apt-get install libdb-dev"
   - cpanm --verbose --no-interactive FreezeThaw DB_File
